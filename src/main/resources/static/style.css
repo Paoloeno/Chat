@@ -1,0 +1,13 @@
+body{
+    background-color: darkgray;
+}
+
+#messages{
+    overflow: auto;
+    max-height: 250px;
+    list-style: none;
+}
+
+#info{
+    color: black;
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/2005/Atom">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/style.css}">
+</head>
+<body>
+
+<div style="text-align: center">
+    <h4 id="info"></h4>         <!--  -->
+    <ul id="messages"></ul>     <!-- lista wiadomości -->
+    <form onsubmit="sendMessage(); return false">
+        <input type="text" id="messageArea" placeholder="Wpisz wiadomość">
+        <input type="submit">
+    </form>
+</div>
+
+<script type="text/javascript">
+    var webSocketLink = "ws://localhost:8080/room";
+    var infoText = document.getElementById("info");
+    var messageArea = document.getElementById("messageArea");
+    var sendedMessages = document.getElementById("messages");
+
+    var webSocket = new WebSocket(webSocketLink);
+
+    webSocket.onopen = function (ev) {
+        infoText.innerHTML = "Połączono";
+    }
+
+    webSocket.onmessage = function (ev) {
+        sendedMessages.innerHTML = sendedMessages.innerHTML + "<li>" + ev.data + "</li>"
+    }
+
+    function sendMessage() {
+        var text = messageArea.value;
+        messageArea.value = "";
+        webSocket.send(text);
+    }
+</script>
+
+</body>
+</html>
