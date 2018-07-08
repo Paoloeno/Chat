@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Chat</title>
     <link rel="stylesheet" type="text/css" th:href="@{/style.css}">
+
 </head>
 <body>
 
@@ -15,29 +16,6 @@
         <input type="submit">
     </form>
 </div>
-
-<script type="text/javascript">
-    var webSocketLink = "ws://localhost:8080/room";
-    var infoText = document.getElementById("info");
-    var messageArea = document.getElementById("messageArea");
-    var sendedMessages = document.getElementById("messages");
-
-    var webSocket = new WebSocket(webSocketLink);
-
-    webSocket.onopen = function (ev) {
-        infoText.innerHTML = "Połączono";
-    }
-
-    webSocket.onmessage = function (ev) {
-        sendedMessages.innerHTML = sendedMessages.innerHTML + "<li>" + ev.data + "</li>"
-    }
-
-    function sendMessage() {
-        var text = messageArea.value;
-        messageArea.value = "";
-        webSocket.send(text);
-    }
-</script>
-
+<script type="text/javascript" th:src="@{/script.js}"></script>
 </body>
 </html>

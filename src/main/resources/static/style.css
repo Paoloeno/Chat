@@ -4,7 +4,7 @@ body{
 
 #messages{
     overflow: auto;
-    max-height: 250px;
+    max-height: 400px;
     list-style: none;
 }
 
