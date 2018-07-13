@@ -7,16 +7,16 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import pl.nowosielski.chat.Controllers.LoginController;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 @Component
 public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigurer{
 
-    public List <WebSocketSession> userList = new LinkedList<>();
+    public static List <UserModel> userList = new LinkedList<>();
     public List <String> lastTenMessages = new LinkedList<>();
 
     @Override
@@ -26,8 +26,11 @@ public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigu
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        userList.add(session);
-        System.out.println("Podłączył się 1 użytkownik");
+        UserModel user = LoginController.tmpUser;
+        user.setSession(session);
+        userList.add(user);
+
+        System.out.println("Do czatu podłączył się " + user.getLogin());
 
         lastTenMessages.forEach(s -> {
             try {
@@ -40,16 +43,20 @@ public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigu
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        userList.remove(session);
+        removeUserBySession(session);
         System.out.println("Rozłączył się 1 użytkownik");
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        addMessageToLastTenList(message.getPayload());
+        String login = getLoginBySession(session);
+        String personalMessage = login + ": " + message.getPayload();
+
+        addMessageToLastTenList(personalMessage);
+
         userList.forEach(s -> {
             try {
-                s.sendMessage(new TextMessage(message.getPayload()));
+                s.getSession().sendMessage(new TextMessage(personalMessage));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -60,5 +67,30 @@ public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigu
         if(lastTenMessages.size() >= 10)
             lastTenMessages.remove(0);
         lastTenMessages.add(message);
+    }
+
+    public static String getLoginBySession(WebSocketSession session){
+
+        String login = null;
+
+        for (int i = 0; i < userList.size(); i++) {
+
+            UserModel user = userList.get(i);
+
+            if(user.getSession().equals(session)){
+                login = user.getLogin();;}
+        }
+        return login;
+    }
+
+    public void removeUserBySession(WebSocketSession session){
+
+        for (int i = 0; i < userList.size(); i++) {
+
+            UserModel user = userList.get(i);
+
+            if(user.getSession().equals(session)){
+                userList.remove(user);}
+        }
     }
 }
